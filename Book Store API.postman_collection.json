@@ -1,0 +1,291 @@
+{
+  "info": {
+    "_postman_id": "ffdbb484-2f79-4e49-9f0a-ed36f488f811",
+    "name": "Book Store API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "14108743"
+  },
+  "item": [
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const chars = \"abcdefghijklmnopqrstuvwxyz\";\nconst upper = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\";\nconst numbers = \"0123456789\";\nconst special = \"!@#$%&*\";\n\nlet password = \"\";\npassword += upper.charAt(Math.floor(Math.random() * upper.length));\npassword += numbers.charAt(Math.floor(Math.random() * numbers.length));\npassword += special.charAt(Math.floor(Math.random() * special.length));\n\nfor (let i = 0; i < 9; i++) {\n    const all = chars + upper + numbers + special;\n    password += all.charAt(Math.floor(Math.random() * all.length));\n}\n\npassword = password.split('').sort(() => Math.random() - 0.5).join('');\n\npm.environment.set(\"password\", password);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst response = pm.response.json();\n\npm.environment.set(\"userId\", response.userID);\npm.environment.set(\"userName\", response.username);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userName\": \"{{$randomUserName}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/Account/v1/User",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "User"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GenerateToken",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Token is not empty\", function () {\n    pm.expect(pm.response.json().token).to.not.be.empty;\n});\n\nconst response = pm.response.json();\n\npm.environment.set(\"token\", response.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userName\": \"{{userName}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/Account/v1/GenerateToken",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "GenerateToken"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Authorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response body is true\", function () {\r\n    pm.expect(pm.response.json()).to.eql(true);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userName\": \"{{userName}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/Account/v1/Authorized",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "Authorized"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User details chosen books",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Account/v1/User/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "User",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "BookStore",
+      "item": [
+        {
+          "name": "Books",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst response = pm.response.json();\nconst isbns = response.books.map(book => book.isbn);\npm.environment.set(\"isbns\", isbns.join(\",\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/BookStore/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "BookStore",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Hire Books",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Pega os ISBNs salvos no environment\nconst isbnsRaw = pm.environment.get(\"isbns\");\nif (!isbnsRaw) {\n    console.error(\"Variável 'isbns' não encontrada no environment. Execute a requisição Books primeiro.\");\n    return;\n}\n\nconst isbns = isbnsRaw.split(\",\");\n\n// Embaralha o array (Fisher-Yates shuffle)\nfor (let i = isbns.length - 1; i > 0; i--) {\n    const j = Math.floor(Math.random() * (i + 1));\n    [isbns[i], isbns[j]] = [isbns[j], isbns[i]];\n}\n\n// Seleciona os 2 primeiros ISBNs únicos após o embaralhamento\npm.environment.set(\"isbn1\", isbns[0]);\npm.environment.set(\"isbn2\", isbns[1]);\n\nconsole.log(\"ISBNs selecionados:\", isbns[0], isbns[1]);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": \"{{userId}}\",\r\n  \"collectionOfIsbns\": [\r\n    {\r\n      \"isbn\": \"{{isbn1}}\"\r\n    },\r\n    {\r\n      \"isbn\": \"{{isbn2}}\"\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/BookStore/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "BookStore",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
